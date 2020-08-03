@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PageDefault from '../../../components/PageDefault';
 import FormField from '../../../components/FormField';
-  
+import Button from '../../../components/Button';
+
 function CadastroCategoria() {
   const valoresIniciais = {
     nome: '',
     descricao: '',
     cor: '',
-  }
+  };
   const [categorias, setCategorias] = useState([]);
   const [values, setValues] = useState(valoresIniciais);
 
@@ -22,13 +23,27 @@ function CadastroCategoria() {
   function handleChange(e) {
     setValue(
       e.target.getAttribute('name'),
-      e.target.value
+      e.target.value,
     );
   }
 
+  useEffect(() => {
+    const URL = 'https://aluraflix-julianaklulo.herokuapp.com/categorias';
+    fetch(URL)
+      .then(async (respostaDoServidor) => {
+        const resposta = await respostaDoServidor.json();
+        setCategorias([
+          ...resposta,
+        ]);
+      });
+  }, []);
+
   return (
     <PageDefault>
-      <h1>Cadastro de Categoria: {values.nome}</h1>
+      <h1>
+        Cadastro de Categoria:
+        {values.nome}
+      </h1>
 
       <form onSubmit={function handleSubmit(e) {
         e.preventDefault();
@@ -37,7 +52,8 @@ function CadastroCategoria() {
           values,
         ]);
         setValues(valoresIniciais);
-      }}>
+      }}
+      >
 
         <FormField
           label="Nome da Categoria"
@@ -46,26 +62,14 @@ function CadastroCategoria() {
           value={values.nome}
           onChange={handleChange}
         />
-        
+
         <FormField
           label="Descrição"
-          type="text"
+          type="textarea"
           name="descricao"
           value={values.descricao}
           onChange={handleChange}
         />
-
-        {/*<div>
-          <label>
-            Descrição:
-          <textarea
-              type="text"
-              name="descricao"
-              value={values.descricao}
-              onChange={handleChange}
-            />
-          </label>
-        </div>*/}
 
         <FormField
           label="Cor"
@@ -75,19 +79,23 @@ function CadastroCategoria() {
           onChange={handleChange}
         />
 
-        <button>
+        <Button>
           Cadastrar
-        </button>
+        </Button>
       </form>
 
+      {categorias.length === 0 && (
+        <div>
+          Carregando...
+        </div>
+      )}
+
       <ul>
-        {categorias.map((categoria, indice) => {
-          return (
-            <li key={`${categoria}${indice}`}>
-              {categoria.nome}
-            </li>
-          )
-        })}
+        {categorias.map((categoria) => (
+          <li key={`${categoria.nome}`}>
+            {categoria.nome}
+          </li>
+        ))}
       </ul>
 
       <Link to="/">
